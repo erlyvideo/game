@@ -1,0 +1,24 @@
+
+.card {
+  display: block;
+  width: 73px;
+  height: 98px;
+  background-image: url("cards.png");
+  background-repeat: no-repeat;
+}
+
+
+#card-list .line {
+  clear: left;
+}
+
+#card-list .card {
+  float: left;
+}
+
+#card-list {
+  width: 950px;
+  height: 392px;
+  clear: both;
+}
+

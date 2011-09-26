@@ -15,17 +15,25 @@ function ready(){
 	}
 	if ("WebSocket" in window) {
 		// browser supports websockets
-		var ws = new WebSocket("ws://"+window.location.host+"/websocket");
+		window.ws = new WebSocket("ws://"+window.location.host+"/websocket");
 		ws.onopen = function() {
 			// websocket is connected
 			addStatus("websocket connected!");
 			// send hello data to server.
-			ws.send("hello server!");
+			
+			ws.send("connect");
 			addStatus("sent message to server: 'hello server'!");
 		};
 		ws.onmessage = function (evt) {
 			var receivedMsg = evt.data;
-			// addStatus("server sent the following: '" + receivedMsg + "'");
+			var json = eval('('+evt.data+')');
+			console.dir(json);
+			if(json["card"]) {
+				drawCard(json.card);
+				$("#total").html(json.total);
+			} else {
+				addStatus("server sent the following: '" + receivedMsg + "'");
+			}
 		};
 		ws.onclose = function() {
 			// websocket was closed
@@ -35,7 +43,6 @@ function ready(){
 		// browser does not support websockets
 		addStatus("sorry, your browser does not support websockets.");
 	}
-	
 	
 	var i,j;
 	var x,y;
@@ -66,16 +73,35 @@ function ready(){
 }
 $(function() {
 	ready();
-})
+});
+
+function moreCard() {
+	window.ws.send("more");
+}
+
+function nextPlayer() {
+	window.ws.send("next");
+}
+
+function drawCard(card) {
+	$("#myCards").append("<div class='card m"+card.suit+" v"+card.value+"'>&nbsp;</div>");
+}
+
 </script>
 </head>
 <body>
+
+<h2>Блекджек и поэтессы</h2>	
+	<a href="#" onclick="moreCard(); return false;">Ещё! (<span id="total"></span>)</a>
+
+	<a href="#" onclick="nextPlayer(); return false;">Себе!</a>
+
+<div id="myCards">
 	
-<div id="card-list">
-	
-</div>	
-	
-Hi!
+</div>
+
 <div id="status"></div>
+
+
 </body>
 </html>

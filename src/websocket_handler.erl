@@ -21,19 +21,34 @@ terminate(_Req, _State) ->
 	ok.
 
 websocket_init(_Any, Req, []) ->
-	timer:send_interval(1000, tick),
 	Req2 = cowboy_http_req:compact(Req),
-	{ok, Req2, undefined, hibernate}.
+	{ok, State} = game_session:init(),
+	{ok, Req2, State, hibernate}.
 
 websocket_handle({text, Msg}, Req, State) ->
-	{reply, {text, << "You said: ", Msg/binary >>}, Req, State, hibernate};
+  io:format("Hi! ~p~n", [Msg]),
+  case game_session:handle_info(Msg, State) of
+    {reply, Reply, State1} ->
+      {reply, {text, Reply}, Req, State1, hibernate};
+    {stop, _Reason, State1} ->
+      {stop, _Reason, State1}
+  end;  
+	
 websocket_handle(_Any, Req, State) ->
 	{ok, Req, State}.
 
 websocket_info(tick, Req, State) ->
 	{reply, {text, <<"Tick">>}, Req, State, hibernate};
-websocket_info(_Info, Req, State) ->
-	{ok, Req, State, hibernate}.
+	
+websocket_info(Info, Req, State) ->
+  case game_session:handle_info(Info, State) of
+    {noreply, State1} ->
+	    {ok, Req, State1, hibernate};
+	  {reply, Reply, State1} ->
+	    {reply, {text, Reply}, Req, State1, hibernate};
+	  {stop, _Reason, State1} ->
+	    {stop, _Reason, State1}
+	end.
 
 websocket_terminate(_Reason, _Req, _State) ->
 	ok.

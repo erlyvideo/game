@@ -17,4 +17,15 @@ start_link() ->
 %% supervisor.
 
 init([]) ->
-	{ok, {{one_for_one, 10, 10}, []}}.
+  
+  Supervisors = 
+  [{   blackjack_sup,
+      {blackjack,start_link,[]},
+      permanent,            
+      brutal_kill,          
+      worker,               
+      []          
+  }],
+  
+  
+	{ok, {{one_for_one, 10, 10}, Supervisors}}.

@@ -7,6 +7,16 @@
   background-repeat: no-repeat;
 }
 
+#myCards {
+  display: block;
+  height: 98px;
+  clear: both;
+}
+
+#myCards .card {
+  float: left;
+}
+
 
 #card-list .line {
   clear: left;
